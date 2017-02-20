@@ -4,6 +4,7 @@
 $white: #FFF;
 $black: #000;
 $red: #ff2d55;
+$pink: #ffabbb;
 
 * {
 	margin: 0;
@@ -58,13 +59,11 @@ html, body {
 }
 
 .show {
-	width: 100%;
-	height: 1080px;
+	@extend %fs;
 	background: $white;
 	border-radius: 14px 14px 0 0;
 	padding-top: 41px;
 	.arr-down {
-		display: block;
 		width: 74px;
 		height: 10px;
 		margin: 0 auto;
@@ -237,7 +236,7 @@ html, body {
 			position: relative;
 			z-index: 2;
 			span {
-				@include transform-origin(33.33333%, 50%);
+				// @include transform-origin(33.33333%, 50%);
 			}
 		}
 		.pp {
@@ -368,21 +367,17 @@ html, body {
 		}
 		.v-low, .v-high {
 			display: inline-block;
-			width: 0;
-			height: 0;
 			position: absolute;
-			top: -7px;
 			&:before, &:after {
 				content: '';
 				display: inline-block;
 				position: absolute;
 				left: 0;
+				z-index: 2;
 			}
 			&:before {
-				width: 4px;
+				width: 5px;
 				height: 8px;
-				top: 6px;
-				left: 12px;
 				background: #8d8d93;
 			}
 			&:after {
@@ -393,13 +388,59 @@ html, body {
 					left: 12px solid transparent;
 				}
 				border-radius: 3px;
+				left: -12px;
 			}
 		}
 		.v-low {
-			left: -52px;
+			width: 14px;
+			height: 20px;
+			left: -40px;
+			top: -7px;
+			&:before {
+				top: 6px;
+			}
 		}
 		.v-high {
-			right: -12px;
+			width: 33px;
+			height: 28px;
+			right: -59px;
+			top: -11px;
+			&:before {
+				top: 11px;
+			}
+			&:after {
+				top: 4px;
+			}
+			i {
+				position: absolute;
+				&:before, &:after {
+					content: '';
+					width: 0;
+					height: 0;
+					display: inline-block;
+					position: absolute;
+					border-radius: 50%;
+				}
+				@for $i from 1 through 3 {
+					&.wave#{$i} {
+						width: 58px-14px*$i;
+						height: 58px-14px*$i;
+						top: -(30px-14px*$i)/2;
+						right: 7px*($i+-1);
+						&:before {
+							border: (58px-14px*$i)/2 solid transparent;
+							border-right-color: #8d8d93;
+							top: 0;
+							left: 0;
+						}
+						&:after {
+							border: (52px-14px*$i)/2 solid $white;
+							top: 3px;
+							right: 2px;
+						}
+					}
+				}
+			}
 		}
 	}
 	.speaker {
@@ -420,6 +461,36 @@ html, body {
 			position: absolute;
 			bottom: 0;
 			left: 4px;
+		}
+		span {
+			position: absolute;
+			&:before, &:after {
+				content: '';
+				width: 0;
+				height: 0;
+				display: inline-block;
+				position: absolute;
+				border-radius: 50%;
+			}
+			@for $i from 1 through 3 {
+				&.wave#{$i} {
+					width: 58px-14px*$i;
+					height: 58px-14px*$i;
+					top: 7px*($i+-1);
+					left: 7px*($i+-1);
+					&:before {
+						border: (58px-14px*$i)/2 solid $pink;
+						border-bottom-color: transparent;
+						top: 0;
+						left: 0;
+					}
+					&:after {
+						border: (52px-14px*$i)/2 solid $white;
+						top: 3px;
+						left: 3px;
+					}
+				}
+			}
 		}
 	}
 	.options {
