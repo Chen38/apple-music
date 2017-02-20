@@ -1,9 +1,5 @@
 !function(root) {
 	
-	$.computedMosuePos = function(cx, cy) {
-		
-	}
-	
 	root.requestAnimationFrame = root.requestAnimationFrame || root.mozRequestAnimationFrame || root.webkitRequestAnimationFrame || root.msRequestAnimationFrame || function(callback) {
 		return root.setTimeout(callback, 1000/60);
 	}
@@ -35,22 +31,21 @@
 		offsetWidth = desc.offsetWidth,
 		scrollWidth = desc.scrollWidth;
 	
-	// (function slide() {
+	function slide() {
 		
-	// 	window.requestAnimationFrame(slide);
-	// 	slideStep--;
+		window.requestAnimationFrame(slide);
+		slideStep -= 0.6;
 		
-	// 	if (-slideStep > scrollWidth - offsetWidth + PADDING_LEFT) {
-	// 		desc.innerHTML = descText + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + descText;
-	// 		offsetWidth = desc.offsetWidth;
-	// 		scrollWidth = desc.scrollWidth;
-	// 		slideStep = 0;
-	// 	}
+		if (-slideStep > scrollWidth - offsetWidth + PADDING_LEFT) {
+			desc.innerHTML = descText + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + descText;
+			scrollWidth = desc.scrollWidth;
+			slideStep = 0;
+		}
 		
-	// 	desc.style.transform =
-	// 	desc.style.webkitTransform = 'translate3d(' + slideStep + 'px, 0, 0)';
+		desc.style.transform =
+		desc.style.webkitTransform = 'translate3d(' + slideStep + 'px, 0, 0)';
 		
-	// }());
+	};
 	
 	// btn bg show hide
 	var $upBtns = $('.up span'),
