@@ -155,5 +155,4 @@
 		recordOL = oLeft;
 	});
 	
-	
 }(this);
