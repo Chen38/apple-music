@@ -18,7 +18,7 @@
 }
 
 .down-up {
-	@include animation('down-up' .5s ease);
+	@include animation('down-up' .6s ease);
 }
 
 @include keyframes('down-up') {

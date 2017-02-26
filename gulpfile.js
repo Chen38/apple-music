@@ -1,14 +1,12 @@
 const gulp = require('gulp');
-const plumber = require('gulp-plumber');
-const compass = require('gulp-compass');
-const pug = require('gulp-pug');
+const plugin = require('gulp-load-plugins')();
 const pump = require('pump');
 
 gulp.task('sass', () => {
 	pump([
 		gulp.src('sass/*.scss'),
-		plumber(),
-		compass({
+		plugin.plumber(),
+		plugin.compass({
 			config_file: 'config.rb',
 			css: 'css',
 			sass: 'sass'
@@ -20,7 +18,7 @@ gulp.task('sass', () => {
 gulp.task('pug', () => {
 	pump([
 		gulp.src('index.pug'),
-		pug(),
+		plugin.pug(),
 		gulp.dest('./')
 	]);
 });
@@ -28,3 +26,12 @@ gulp.task('pug', () => {
 gulp.watch('sass/*.scss', ['sass']);
 gulp.watch('index.pug', ['pug']);
 gulp.task('dev', ['sass', 'pug']);
+
+gulp.task('uglify', ()=> {
+	pump([
+		gulp.src(['js/jquery.min.js', 'js/util.js']),
+		plugin.concat('util.min.js'),
+		plugin.uglify(),
+		gulp.dest('dist/js')
+	]);
+});

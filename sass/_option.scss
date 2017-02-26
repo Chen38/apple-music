@@ -1,34 +1,40 @@
 .options {
-	width: 512px;
+	width: 534px;
 	height: 10px;
 	margin: 0 auto;
 	position: relative;
 	top: -27px;
-	text-align: right;
-	.dots {
+	padding-left: 32px;
+	li {
 		display: inline-block;
+	}
+	.dots {
 		width: 10px;
 		height: 10px;
 		background: $red;
 		border-radius: 50%;
 		position: relative;
-		@include single-transition(opacity, .3s, ease);
-		&:before, &:after {
+		float: right;
+		margin-left: 4px;
+	}
+	.add {
+		float: left;
+		width: 32px;
+		height: 6px;
+		margin-top: 2px;
+		border-radius: 6px;
+		background-color: $red;
+		position: relative;
+		&:after {
 			content: '';
 			display: inline-block;
+			width: 6px;
+			height: 32px;
+			border-radius: 6px;
+			background-color: inherit;
 			position: absolute;
-			top: 0;
-			left: -14px;
-			width: 10px;
-			height: 10px;
-			background: $red;
-			border-radius: 50%;
-		}
-		&:before {
-			left: -28px;
-		}
-		&:active {
-			opacity: .3;
+			top: -13px;
+			left: 13px;
 		}
 	}
 }

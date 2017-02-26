@@ -1,27 +1,29 @@
-!function(root) {
+$(function() {
 	
-	root.requestAnimationFrame = root.requestAnimationFrame || root.mozRequestAnimationFrame || root.webkitRequestAnimationFrame || root.msRequestAnimationFrame || function(callback) {
-		return root.setTimeout(callback, 1000/60);
-	}
+	/* -------- new code start ------- */
 	
-	// album toggle scale
-	var $pp = $('.pp'),
-		$album = $('.album'),
-		music = $('.music')[0];
+	var apple_music = new AppleMusic({
+		// 需要播放的音频文件
+		// music: $('.syy')[0],
+		// 指示下滑箭头
+		arrow: $('.arr-down'),
+		// 专辑封面
+		album: $('.album'),
+		// 三个控制按钮
+		btns: $('.up span'),
+		// 按钮对应的背景
+		btnBgs: $('.down span'),
+		// 音量指示器
+		volumeIndicator: $('.v-indicator'),
+		// 音量进度条
+		progress: $('.progress'),
+		// 总音量
+		volume: $('.volumes')
+	});
+	// 初始化调用
+	apple_music.init();
 	
-	var needClass = ['album-big', 'pp-play'];
-	
-	function toggleAlbumPlay() {
-		if(!$album.hasClass(needClass[0])) {
-			$album.addClass(needClass[0]);
-			$pp.addClass(needClass[1]);
-			// music.play();
-		} else {
-			$album.removeClass(needClass[0]);
-			$pp.removeClass(needClass[1]);
-			// music.pause();
-		}
-	}
+	/* -------- new code end ------- */
 	
 	// text slide
 	var PADDING_LEFT = 64,
@@ -47,31 +49,6 @@
 		
 	};
 	
-	// btn bg show hide
-	var $upBtns = $('.up span'),
-		$downBgs = $('.down span');
-	
-	$upBtns.on('touchend', function() {
-		
-		var index = $(this).index();
-		if (index === 1) {
-			toggleAlbumPlay();
-		}
-		
-		$downBgs.eq(index).addClass('bg-show-hide');
-		
-		$(this).addClass('down-up');
-		
-	});
-	
-	$downBgs.on('animationend webkitAnimationend', function() {
-		$(this).removeClass('bg-show-hide');
-	});
-	
-	$upBtns.on('animationend webkitAnimationend', function() {
-		$(this).removeClass('down-up');
-	});
-	
 	// timeline control
 	var $indicator = $('.indicator'),
 		$played = $('.played'),
@@ -79,80 +56,84 @@
 		$playTime = $('.play'),
 		$restTime = $('.rest');
 	var isDown = false,
-		lineOL = $line.offset().left;
-	
+		isLessThanLeft = false,
+		isLessThanLeftTime = false,
+		isMoreThanRight = false,
+		isMoreThanRightTime = false,
+		sbValue = 22,
+		lineOL = $line.offset().left,
+		indicatorOL, oLeft,
+		indicatorW = $indicator.width(),
+		lineW = $line.width(),
+		ptW = $playTime.width();
+		
 	$indicator.on('touchstart', function(event) {
 		isDown = true;
-		$indicator.addClass('indicator-big');
-		$playTime.addClass('play-down');
-		if (!$album.hasClass(needClass[0])) {
+		indicatorOL = $indicator.offset().left
+		
+		// 距离左边小于安全距离的时候，放大不能超出
+		if (indicatorOL <= lineOL + sbValue) {
+			isLessThanLeft = true;
+		}
+		// 大于左边宽度足够放大的时候，但是又没有超过已播放时间的宽度
+		if (indicatorOL <= lineOL + sbValue + ptW && indicatorOL > lineOL + sbValue) {
+			isLessThanLeftTime = true;
+		}
+		
+		if (indicatorOL >= lineOL + lineW - sbValue - indicatorW) {
+			isMoreThanRight = true;
+		}
+		
+		// 其他情况不影响已播放时间的显示
+		if (!isLessThanLeft && !isLessThanLeftTime) {
+			$indicator.addClass('indicator-big');
+			$playTime.addClass('play-color');
+		}
+		if (isLessThanLeft) {
+			var _oLeft = 28 - indicatorOL + lineOL - indicatorW/2 - 1;
+			$indicator.css({
+				'transform': 'translate3d(' + _oLeft + 'px, 0, 0) scale(4.66667)',
+				'webkitTransform': 'translate3d(' + _oLeft + 'px, 0, 0) scale(4.66667)',
+				'background-color': '#ff2d55',
+				'border-color': '#fff'
+			});
+			$playTime.addClass('play-down');
+		}
+		if (isLessThanLeftTime) {
+			$indicator.addClass('indicator-big');
+			$playTime.addClass('play-down');
+		}
+		
+		$played.addClass('played-color');
+		
+		if (!$album.hasClass(ncs[0])) {
 			$album.addClass('album-pause-up');
 		} else {
 			$album.addClass('album-play-up');
 		}
+		
 	});
 	
 	$indicator.on('touchmove', function(event) {
+		
+		if (isDown) {
+			var mx = event.touches[0].pageX;
+			
+		}
 		
 	});
 	
 	$indicator.on('touchend', function(event) {
 		isDown = false;
-		$indicator.removeClass('indicator-big');
-		$playTime.removeClass('play-down');
-		if (!$album.hasClass(needClass[0])) {
-			$album.removeClass('album-pause-up');
-		} else {
-			$album.removeClass('album-play-up');
-		}
+		isLessThanLeft = false;
+		isMoreThanRight = false;
+		isLessThanLeftTime = false;
+		isMoreThanRightTime = false;
+		$(this).removeAttr('style');
+		$(this).removeClass('indicator-big');
+		$played.removeClass('played-color');
+		$playTime.removeClass('play-down play-color');
+		$album.removeClass('album-pause-up album-play-up');
 	});
 	
-	// volume control
-	var $progress = $('.progress'),
-		$v_indicator = $('.v-indicator'),
-		$volumes = $('.volumes');
-	
-	var vOL = $volumes.offset().left,
-		viOL = $v_indicator.offset().left,
-		wLA = $volumes.width(),
-		wV = $v_indicator.width(),
-		wP = $progress.width(),
-		OML, recordOL = 0, oLeft;
-	
-	$v_indicator.on('touchstart', function(event) {
-		isDown = true;
-		var cx = event.touches[0].pageX;
-		if (cx <= wV/2 + vOL) {
-			cx = wV/2 + vOL;
-			viOL = vOL;
-		}
-		OML = cx - viOL;
-	});
-	
-	$v_indicator.on('touchmove', function(event) {
-		if (isDown) {
-			var cx = event.touches[0].pageX;
-			if (cx <= wV/2 + vOL) {
-				cx = wV/2 + vOL;
-			}
-			if (cx >= wLA - wV/2 + vOL) {
-				cx = wLA - wV/2 + vOL;
-			}
-			oLeft = cx - viOL - OML + recordOL;
-			$(this).css({
-				'transform': 'translate3d(' + oLeft + 'px, 0, 0)',
-				'webkitTransform': 'translate3d(' + oLeft + 'px, 0, 0)'
-			});
-			$progress.css({
-				'width': wP + oLeft + 'px'
-			});
-		}
-	});
-	
-	$v_indicator.on('touchend', function(event) {
-		isDown = false;
-		viOL = $(this).offset().left;
-		recordOL = oLeft;
-	});
-	
-}(this);
+});
