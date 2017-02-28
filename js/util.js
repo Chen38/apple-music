@@ -1,13 +1,23 @@
 !function(root, $) {
 	
+	// $ prototype methods
+	$.fn.translate3d = function(distanceX) {
+		this.css({
+			'transform': 'translate3d(' + distanceX + 'px, 0, 0)',
+			'webkitTransform': 'translate3d(' + distanceX + 'px, 0, 0)'
+		});
+	}
+	
 	// requestAnimationFrame
-	root.RAF = root.requestAnimationFrame || root.mozRequestAnimationFrame || root.webkitRequestAnimationFrame || root.msRequestAnimationFrame || function(callback) {
+	var RAF = root.requestAnimationFrame || root.mozRequestAnimationFrame || root.webkitRequestAnimationFrame || root.msRequestAnimationFrame || function(callback) {
 		return root.setTimeout(callback, 1000/60);
 	}
 	
 	var AppleMusic = function(argus) {
+		// 资源列表
+		this.playlist = argus.playlist;
 		// 音乐
-		this.music = argus.music;
+		this.sound = null;
 		// 页面向下的箭头
 		this.arrow = argus.arrow;
 		// 专辑封面
@@ -24,6 +34,7 @@
 		this.rest = argus.rest;
 		// 总时间
 		// this.allTime = this.music.duration;
+		// this.allTime = 24;
 		// 歌曲名字
 		this.name = argus.name;
 		// 歌曲主要信息
@@ -37,15 +48,13 @@
 		// 音量进度显示条
 		this.progress = argus.progress;
 		// 总音量长度条
-		this.volume = argus.volume;
-	}
-	
-	var SYY = AppleMusic.prototype;
+		this.volumeContainer = argus.volumeContainer;
+	}, SYY = AppleMusic.prototype;
 	
 	SYY.constructor = AppleMusic;
 	
-	AppleMusic.defaults = {
-		
+	SYY.defaults = {
+		volume: 0.5
 	}
 	
 	var CNS = {
@@ -64,11 +73,15 @@
 	
 	SYY.init = function() {
 		
-		this.arrowDown();
+		var _s = this;
 		
-		this.btnEffect();
+		_s.arrowDown();
 		
-		this.volumeControl();
+		_s.startLoad();
+		
+		_s.btnEffect();
+		
+		_s.volumeControl();
 		
 	}
 	
@@ -81,27 +94,17 @@
 		});
 	}
 	
-	SYY.albumAnimate = function() {
-		var _album = this.album,
-			_pp = this.btns.eq(1);
-		if(!_album.hasClass(CNS.ab)) {
-			_album.addClass(CNS.ab);
-			_pp.addClass(CNS.pp);
-			// this.music.play();
-		} else {
-			_album.removeClass(CNS.ab);
-			_pp.removeClass(CNS.pp);
-			// this.music.pause();
-		}
-	}
-	
 	SYY.btnEffect = function() {
 		
 		var _s = this;
 		_s.btns.on('touchend', function() {
 			var index = $(this).index();
 			if (index === 1) {
-				_s.albumAnimate();
+				if (_s.sound.playing()) {
+					_s.sound.pause();
+				} else {
+					_s.sound.play();
+				}
 			}
 			_s.btnBgs.eq(index).addClass(CNS.bsh);
 			$(this).addClass(CNS.du);
@@ -120,7 +123,7 @@
 	SYY.volumeControl = function() {
 		
 		var _s = this,
-			_volume = _s.volume,
+			_volume = _s.volumeContainer,
 			_indicator = _s.volumeIndicator,
 			_progress = _s.progress;
 		
@@ -154,13 +157,11 @@
 					cx = vLength - iLength / 2 + vLeft;
 				}
 				vileft = cx - iLeft - offset + record;
-				$(this).css({
-					'transform': 'translate3d(' + vileft + 'px, 0, 0)',
-					'webkitTransform': 'translate3d(' + vileft + 'px, 0, 0)'
-				});
+				$(this).translate3d(vileft);
 				_progress.css({
 					'width': pLength + vileft + 'px'
 				});
+				_s.sound.volume((pLength + vileft) / (vLength - iLength / 2));
 			}
 		});
 		
@@ -170,6 +171,77 @@
 			record = vileft;
 		});
 		
+	}
+	
+	SYY.startLoad = function() {
+		
+		var _s = this,
+			_album = _s.album,
+			_pp = _s.btns.eq(1);
+		
+		_s.sound = new Howl({
+			src: _s.playlist,
+			html5: true,
+			preload : true,
+			onload: function() {
+				_s.rest.text('-' + _s.formatTime(Math.round(_s.sound.duration())));
+				_s.sound.volume(0.5);
+			},
+			onplay: function() {
+				_album.addClass(CNS.ab);
+				_pp.addClass(CNS.pp);
+				RAF(_s.step.bind(_s));
+			},
+			onpause: function() {
+				_album.removeClass(CNS.ab);
+				_pp.removeClass(CNS.pp);
+			},
+			onend: function() {
+				_s.resetPlay();
+			},
+		});
+	}
+	
+	SYY.step = function() {
+		var _s = this,
+			seek = _s.sound.seek(),
+			allWidth = _s.timeline.width(),
+			halfWidth = _s.timeIndicator.width() / 2,
+			indicatorWidth = allWidth - halfWidth;
+		var percent = seek / _s.sound.duration(),
+			playedTime = _s.formatTime(Math.round(seek)),
+			restTime = _s.restTime(playedTime, Math.round(_s.sound.duration()));
+		
+		_s.play.text(playedTime);
+		_s.rest.text('-' + restTime);
+		_s.played.width(allWidth * percent + halfWidth);
+		_s.timeIndicator.translate3d(indicatorWidth * percent);
+		if (_s.sound.playing()) {
+			RAF(_s.step.bind(_s));
+		}
+	}
+	
+	SYY.formatTime = function(seconds) {
+		var m = Math.floor(seconds / 60) || 0,
+			s = seconds - m * 60 || 0;
+		return m + ':' + (s < 10 ? '0' : '') + s;
+	}
+	
+	SYY.restTime = function(playedTime, allTime) {
+		var splitTime = playedTime.split(':'),
+			restTime = allTime - (+splitTime[0]) * 60 - (+splitTime[1]);
+		return this.formatTime(restTime);
+	}
+	
+	SYY.resetPlay = function() {
+		// 重置时间显示
+		this.play.text('0:00');
+		this.rest.text('-' + this.formatTime(this.sound.duration()));
+		// 重置时间进度条
+		this.timeIndicator.css({left: 0});
+		this.played.width(0);
+		this.btns.eq(1).removeClass(CNS.pp);
+		this.album.removeClass(CNS.ab);
 	}
 	
 	root.AppleMusic = AppleMusic;

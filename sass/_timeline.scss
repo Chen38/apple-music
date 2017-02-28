@@ -59,10 +59,12 @@
 		.play {
 			left: 2px;
 			width: 60px;
+			text-align: left;
 		}
 		.rest {
 			right: 2px;
 			width: 70px;
+			text-align: right;
 		}
 		.play-down, .rest-down {
 			@include translate3d(0, 16px, 0);

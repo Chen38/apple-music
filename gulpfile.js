@@ -29,7 +29,7 @@ gulp.task('dev', ['sass', 'pug']);
 
 gulp.task('uglify', ()=> {
 	pump([
-		gulp.src(['js/jquery.min.js', 'js/util.js']),
+		gulp.src(['vendor/js/jquery.min.js', 'vendor/js/howler.min.js', 'js/util.js']),
 		plugin.concat('util.min.js'),
 		plugin.uglify(),
 		gulp.dest('dist/js')
