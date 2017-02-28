@@ -17,7 +17,7 @@
 			background-color: #8e8e93;
 			border-radius: 6px;
 			width: 0;
-			@include single-transition(all, $time+-.1s, ease);
+			// @include single-transition(all, $time+-.1s, ease);
 		}
 		.played-color {
 			background-color: $red;
@@ -32,7 +32,7 @@
 			left: 0;
 			border-radius: 50%;
 			@include transform-origin(50%, 50%);
-			@include single-transition(all, $time+-.1s, ease);
+			// @include single-transition(all, $time+-.1s, ease);
 			border: 1px solid transparent;
 		}
 		.indicator-big {

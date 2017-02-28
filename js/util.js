@@ -184,7 +184,8 @@
 			html5: true,
 			preload : true,
 			onload: function() {
-				_s.rest.text('-' + _s.formatTime(Math.round(_s.sound.duration())));
+				_s.duration = _s.sound.duration();
+				_s.rest.text('-' + _s.formatTime(Math.round(_s.duration)));
 				_s.sound.volume(0.5);
 			},
 			onplay: function() {
@@ -208,9 +209,9 @@
 			allWidth = _s.timeline.width(),
 			halfWidth = _s.timeIndicator.width() / 2,
 			indicatorWidth = allWidth - halfWidth;
-		var percent = seek / _s.sound.duration(),
+		var percent = seek / _s.duration,
 			playedTime = _s.formatTime(Math.round(seek)),
-			restTime = _s.restTime(playedTime, Math.round(_s.sound.duration()));
+			restTime = _s.restTime(playedTime, Math.round(_s.duration));
 		
 		_s.play.text(playedTime);
 		_s.rest.text('-' + restTime);
@@ -236,7 +237,7 @@
 	SYY.resetPlay = function() {
 		// 重置时间显示
 		this.play.text('0:00');
-		this.rest.text('-' + this.formatTime(this.sound.duration()));
+		this.rest.text('-' + this.formatTime(Math.round(this.duration)));
 		// 重置时间进度条
 		this.timeIndicator.css({left: 0});
 		this.played.width(0);
